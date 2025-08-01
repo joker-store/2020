@@ -5,24 +5,18 @@ body {
   background: url('a7med.jpg') no-repeat center center fixed;
   background-size: cover;
 }
-
-/* لو العرض أقل من 768px (موبايل) */
 @media (max-width: 768px) {
-  body {
-    background: url('a7med-mobile.jpg') no-repeat center center fixed;
-    background-size: cover;
-  }
+  body { background: url('a7med-mobile.jpg') no-repeat center center fixed; background-size: cover; }
 }
 
-.login-container, .dashboard {
+.login-container {
   max-width: 400px;
-  margin: 50px auto;
+  margin: 100px auto;
   padding: 20px;
-  background: rgba(255, 255, 255, 0.85);
+  background: rgba(255,255,255,0.85);
   border-radius: 10px;
   box-shadow: 0 0 15px rgba(0,0,0,0.3);
 }
-
 input, textarea, button {
   width: 100%;
   margin: 5px 0;
@@ -30,19 +24,21 @@ input, textarea, button {
   border: 1px solid #ccc;
   border-radius: 5px;
 }
-
 button {
   background: #007bff;
   color: #fff;
   border: none;
   cursor: pointer;
 }
-
 button:hover { background: #0056b3; }
+h2, h3, h4 { text-align: center; }
 
-h2, h3, h4 { text-align: center; color: #333; }
-
-#clientsList div {
-  padding: 10px;
-  border-bottom: 1px solid #ddd;
-}
+.dashboard { max-width: 95%; margin: 20px auto; padding: 20px; background: rgba(255,255,255,0.9); border-radius: 10px; }
+.container { display: flex; gap: 20px; }
+.clients-section { width: 30%; background: #f8f8f8; padding: 10px; border-radius: 8px; }
+.debts-section { width: 70%; background: #fff; padding: 10px; border-radius: 8px; }
+.client-item { padding: 10px; border-bottom: 1px solid #ddd; cursor: pointer; }
+.client-item:hover { background: #eee; }
+table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+table, th, td { border: 1px solid #ccc; }
+th, td { padding: 8px; text-align: center; }
