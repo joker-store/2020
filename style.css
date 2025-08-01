@@ -5,20 +5,29 @@ body {
   background: url('a7med.jpg') no-repeat center center fixed;
   background-size: cover;
 }
-@media (max-width: 768px) {
-  body { background: url('a7med-mobile.jpg') no-repeat center center fixed; background-size: cover; }
+.login-container {
+  max-width: 400px;
+  margin: 100px auto;
+  padding: 20px;
+  background: rgba(255,255,255,0.9);
+  border-radius: 10px;
+  box-shadow: 0 0 15px rgba(0,0,0,0.3);
 }
+input, button {
+  width: 100%;
+  margin: 5px 0;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+button { background: #007bff; color: #fff; border: none; cursor: pointer; }
+button:hover { background: #0056b3; }
 .dashboard { max-width: 95%; margin: 20px auto; padding: 20px; background: rgba(255,255,255,0.95); border-radius: 10px; }
 .container { display: flex; gap: 20px; }
 .clients-section { width: 30%; background: #f8f8f8; padding: 10px; border-radius: 8px; }
 .debts-section { width: 70%; background: #fff; padding: 10px; border-radius: 8px; }
-
 table { width: 100%; border-collapse: collapse; margin-top: 10px; }
 table, th, td { border: 1px solid #ccc; }
 th, td { padding: 8px; text-align: center; }
 tr.selected { background: #007bff; color: #fff; }
-
 .client-actions { margin-top: 10px; }
-input, button { width: 100%; margin: 5px 0; padding: 10px; border: 1px solid #ccc; border-radius: 5px; }
-button { background: #007bff; color: #fff; cursor: pointer; }
-button:hover { background: #0056b3; }
