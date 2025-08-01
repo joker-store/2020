@@ -11,6 +11,13 @@
     <h2>لوحة الموظفين</h2>
     <button onclick="logout()">تسجيل الخروج</button>
     <div class="container">
+      <!-- تفاصيل الموظف -->
+      <div class="debts-section">
+        <h3 id="clientTitle">تفاصيل الموظف</h3>
+        <div id="debtsSection">
+          <p>اختر موظف من الجدول لعرض التفاصيل</p>
+        </div>
+      </div>
       <!-- الموظفين -->
       <div class="clients-section">
         <h3>الموظفين</h3>
@@ -24,13 +31,6 @@
           <input type="text" id="clientName" placeholder="اسم الموظف">
           <button onclick="addClient()">إضافة موظف</button>
           <button onclick="deleteClient()">حذف الموظف المحدد</button>
-        </div>
-      </div>
-      <!-- تفاصيل الموظف -->
-      <div class="debts-section">
-        <h3 id="clientTitle">تفاصيل الموظف</h3>
-        <div id="debtsSection">
-          <p>اختر موظف من الجدول لعرض التفاصيل</p>
         </div>
       </div>
     </div>
