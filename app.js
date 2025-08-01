@@ -100,7 +100,7 @@ function loadDebts(clientId, name) {
   section.innerHTML = `
     <table>
       <thead>
-        <tr><th>الوصف</th><th>المبلغ</th><th>التاريخ</th></tr>
+        <tr><th>الوصف</th><th>المبلغ</th><th>التاريخ</th><th>إجراءات</th></tr>
       </thead>
       <tbody id="debtsList"></tbody>
     </table>
@@ -121,7 +121,13 @@ function loadDebts(clientId, name) {
     snapshot.forEach(child => {
       const debt = child.val();
       total += parseFloat(debt.amount);
-      debtsList.innerHTML += `<tr><td>${debt.product}</td><td>${debt.amount}</td><td>${debt.date}</td></tr>`;
+      debtsList.innerHTML += `
+        <tr>
+          <td>${debt.product}</td>
+          <td>${debt.amount}</td>
+          <td>${debt.date}</td>
+          <td><button onclick="editDebt('${clientId}', '${child.key}', '${debt.product}', '${debt.amount}')">تعديل</button></td>
+        </tr>`;
     });
     document.getElementById('totalDebt').innerText = total;
   });
@@ -135,6 +141,17 @@ function addDebt(clientId) {
   const newDebtRef = db.ref(mode + '/' + clientId + '/debts').push();
   newDebtRef.set({
     product, amount, date: new Date().toLocaleString()
+  }).then(() => loadDebts(clientId, selectedClientName));
+}
+
+// تعديل عملية
+function editDebt(clientId, debtId, oldProduct, oldAmount) {
+  const newProduct = prompt("أدخل الوصف الجديد:", oldProduct);
+  const newAmount = parseFloat(prompt("أدخل المبلغ الجديد:", oldAmount));
+  if (!newProduct || isNaN(newAmount)) return alert("البيانات غير صالحة!");
+  db.ref(`${mode}/${clientId}/debts/${debtId}`).update({
+    product: newProduct,
+    amount: newAmount
   }).then(() => loadDebts(clientId, selectedClientName));
 }
 
