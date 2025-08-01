@@ -1,10 +1,14 @@
-// تسجيل الدخول
-function simpleLogin() {
+// تحديد نوع الإدارة
+let mode = localStorage.getItem("mode") || "clients";
+
+// تسجيل الدخول مع تحديد الوضع
+function simpleLogin(selectedMode) {
   const username = document.getElementById('username').value;
   const password = document.getElementById('password').value;
   if (username === "admin" && password === "1234") {
     localStorage.setItem("loggedIn", "true");
-    window.location.href = "dashboard.html";
+    localStorage.setItem("mode", selectedMode);
+    window.location.href = selectedMode === "clients" ? "dashboard.html" : "staff.html";
   } else {
     document.getElementById('error-message').innerText = "بيانات الدخول غير صحيحة!";
   }
@@ -19,6 +23,7 @@ if (document.body.contains(document.querySelector('.dashboard'))) {
   if (localStorage.getItem("loggedIn") !== "true") {
     window.location.href = "index.html";
   }
+  mode = localStorage.getItem("mode") || "clients";
 }
 
 // Firebase Config
@@ -38,10 +43,10 @@ const db = firebase.database();
 let selectedClientId = null;
 let selectedClientName = null;
 
-// تحميل العملاء مع تحديث لحظي
+// تحميل العملاء أو الموظفين
 function loadClients() {
   const table = document.getElementById('clientsTable');
-  db.ref('clients').on('value', snapshot => {
+  db.ref(mode).on('value', snapshot => {
     table.innerHTML = '';
     snapshot.forEach(child => {
       const client = child.val();
@@ -64,11 +69,11 @@ function highlightRow(selectedRow) {
   selectedRow.classList.add('selected');
 }
 
-// إضافة عميل
+// إضافة عميل أو موظف
 function addClient() {
   const name = document.getElementById('clientName').value;
-  if (!name) return alert("أدخل اسم العميل");
-  const newClientRef = db.ref('clients').push();
+  if (!name) return alert("أدخل الاسم");
+  const newClientRef = db.ref(mode).push();
   newClientRef.set({ name: name }, (error) => {
     if (error) {
       alert("حصل خطأ أثناء الإضافة!");
@@ -78,38 +83,38 @@ function addClient() {
   });
 }
 
-// حذف عميل
+// حذف عميل أو موظف
 function deleteClient() {
-  if (!selectedClientId) return alert("اختر عميل أولاً");
-  if (!confirm(`هل أنت متأكد من حذف العميل ${selectedClientName}؟`)) return;
-  db.ref('clients/' + selectedClientId).remove();
+  if (!selectedClientId) return alert("اختر اسم أولاً");
+  if (!confirm(`هل أنت متأكد من الحذف ${selectedClientName}؟`)) return;
+  db.ref(mode + '/' + selectedClientId).remove();
   selectedClientId = null;
   selectedClientName = null;
-  document.getElementById('debtsSection').innerHTML = "<p>اختر عميل من الجدول لعرض التفاصيل</p>";
+  document.getElementById('debtsSection').innerHTML = "<p>اختر اسم من الجدول لعرض التفاصيل</p>";
 }
 
-// تحميل ديون العميل + الدفع
+// تحميل تفاصيل
 function loadDebts(clientId, name) {
-  document.getElementById('clientTitle').innerText = `ديون ${name}`;
+  document.getElementById('clientTitle').innerText = `تفاصيل ${name}`;
   const section = document.getElementById('debtsSection');
   section.innerHTML = `
     <table>
       <thead>
-        <tr><th>المنتج</th><th>السعر</th><th>التاريخ</th></tr>
+        <tr><th>الوصف</th><th>المبلغ</th><th>التاريخ</th></tr>
       </thead>
       <tbody id="debtsList"></tbody>
     </table>
     <h4>الإجمالي: <span id="totalDebt">0</span> ج</h4>
     <h4>إضافة عملية</h4>
-    <input type="text" id="productName" placeholder="اسم المنتج">
-    <input type="number" id="debtAmount" placeholder="السعر">
+    <input type="text" id="productName" placeholder="الوصف">
+    <input type="number" id="debtAmount" placeholder="المبلغ">
     <button onclick="addDebt('${clientId}')">إضافة</button>
     <h4>تسجيل دفع</h4>
     <input type="number" id="paymentAmount" placeholder="المبلغ المدفوع">
     <button onclick="addPayment('${clientId}')">تسجيل دفع</button>
   `;
 
-  db.ref('clients/' + clientId + '/debts').once('value', snapshot => {
+  db.ref(mode + '/' + clientId + '/debts').once('value', snapshot => {
     const debtsList = document.getElementById('debtsList');
     debtsList.innerHTML = '';
     let total = 0;
@@ -122,12 +127,12 @@ function loadDebts(clientId, name) {
   });
 }
 
-// إضافة دين
+// إضافة عملية
 function addDebt(clientId) {
   const product = document.getElementById('productName').value;
   const amount = parseFloat(document.getElementById('debtAmount').value);
-  if (!product || !amount) return alert("أدخل اسم المنتج والسعر");
-  const newDebtRef = db.ref('clients/' + clientId + '/debts').push();
+  if (!product || !amount) return alert("أدخل الوصف والمبلغ");
+  const newDebtRef = db.ref(mode + '/' + clientId + '/debts').push();
   newDebtRef.set({
     product, amount, date: new Date().toLocaleString()
   }).then(() => loadDebts(clientId, selectedClientName));
@@ -137,7 +142,7 @@ function addDebt(clientId) {
 function addPayment(clientId) {
   const payment = parseFloat(document.getElementById('paymentAmount').value);
   if (!payment || payment <= 0) return alert("أدخل مبلغ صحيح");
-  const newDebtRef = db.ref('clients/' + clientId + '/debts').push();
+  const newDebtRef = db.ref(mode + '/' + clientId + '/debts').push();
   newDebtRef.set({
     product: "دفع",
     amount: -payment,
