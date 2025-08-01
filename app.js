@@ -1,34 +1,15 @@
-// =======================
-// تسجيل دخول بسيط
-// =======================
-function simpleLogin() {
-  const username = document.getElementById('username').value;
-  const password = document.getElementById('password').value;
-
-  if (username === "admin" && password === "1234") { // غيرهم زي ما تحب
-    localStorage.setItem("loggedIn", "true");
-    window.location.href = "dashboard.html";
-  } else {
-    document.getElementById('error-message').innerText = "بيانات الدخول غير صحيحة!";
-  }
-}
-
-// تسجيل الخروج
+// تسجيل الدخول والخروج
 function logout() {
   localStorage.removeItem("loggedIn");
   window.location.href = "index.html";
 }
-
-// منع دخول لوحة التحكم بدون تسجيل
 if (document.body.contains(document.querySelector('.dashboard'))) {
   if (localStorage.getItem("loggedIn") !== "true") {
     window.location.href = "index.html";
   }
 }
 
-// =======================
-// Firebase (للعملاء والديون)
-// =======================
+// Firebase
 const firebaseConfig = {
   apiKey: "xxxx",
   authDomain: "xxxx.firebaseapp.com",
@@ -45,30 +26,28 @@ let selectedClientName = null;
 
 // تحميل العملاء
 function loadClients() {
-  const list = document.getElementById('clientsList');
-  list.innerHTML = '';
+  const table = document.getElementById('clientsTable');
+  table.innerHTML = '';
   db.collection('clients').get().then(snapshot => {
     snapshot.forEach(doc => {
       const client = doc.data();
-      const div = document.createElement('div');
-      div.classList.add('client-item');
-      div.innerHTML = `<strong>${client.name}</strong>`;
-      div.onclick = () => {
+      const row = document.createElement('tr');
+      row.innerHTML = `<td>${client.name}</td>`;
+      row.onclick = () => {
         selectedClientId = doc.id;
         selectedClientName = client.name;
         loadDebts(doc.id, client.name);
-        highlightSelected(div);
+        highlightRow(row);
       };
-      list.appendChild(div);
+      table.appendChild(row);
     });
   });
 }
 
-// تمييز العميل المحدد
-function highlightSelected(selectedElement) {
-  const items = document.querySelectorAll('.client-item');
-  items.forEach(item => item.classList.remove('selected'));
-  selectedElement.classList.add('selected');
+function highlightRow(selectedRow) {
+  const rows = document.querySelectorAll('#clientsTable tr');
+  rows.forEach(r => r.classList.remove('selected'));
+  selectedRow.classList.add('selected');
 }
 
 // إضافة عميل
@@ -76,33 +55,29 @@ function addClient() {
   const name = document.getElementById('clientName').value;
   if (!name) return alert("أدخل اسم العميل");
   db.collection('clients').add({ name }).then(() => {
-    alert("تم إضافة العميل");
     document.getElementById('clientName').value = "";
     loadClients();
   });
 }
 
-// حذف العميل المحدد
+// حذف عميل
 function deleteClient() {
   if (!selectedClientId) return alert("اختر عميل أولاً");
+  if (!confirm(`هل أنت متأكد من حذف العميل ${selectedClientName}؟`)) return;
 
-  if (confirm(`هل أنت متأكد من حذف العميل: ${selectedClientName}؟`)) {
-    // احذف كل الديون أولاً
-    const debtsRef = db.collection('clients').doc(selectedClientId).collection('debts');
-    debtsRef.get().then(snapshot => {
-      const batch = db.batch();
-      snapshot.forEach(doc => batch.delete(doc.ref));
-      batch.commit().then(() => {
-        db.collection('clients').doc(selectedClientId).delete().then(() => {
-          alert("تم حذف العميل");
-          selectedClientId = null;
-          selectedClientName = null;
-          loadClients();
-          document.getElementById('debtsSection').innerHTML = "<p>اختر عميل من القائمة لعرض التفاصيل</p>";
-        });
+  const debtsRef = db.collection('clients').doc(selectedClientId).collection('debts');
+  debtsRef.get().then(snapshot => {
+    const batch = db.batch();
+    snapshot.forEach(doc => batch.delete(doc.ref));
+    batch.commit().then(() => {
+      db.collection('clients').doc(selectedClientId).delete().then(() => {
+        selectedClientId = null;
+        selectedClientName = null;
+        loadClients();
+        document.getElementById('debtsSection').innerHTML = "<p>اختر عميل من الجدول لعرض التفاصيل</p>";
       });
     });
-  }
+  });
 }
 
 // تحميل ديون العميل
@@ -110,16 +85,17 @@ function loadDebts(clientId, name) {
   document.getElementById('clientTitle').innerText = `ديون ${name}`;
   const section = document.getElementById('debtsSection');
   section.innerHTML = `
+    <table>
+      <thead>
+        <tr><th>المنتج</th><th>السعر</th><th>التاريخ</th></tr>
+      </thead>
+      <tbody id="debtsList"></tbody>
+    </table>
+    <h4>الإجمالي: <span id="totalDebt">0</span> ج</h4>
     <h4>إضافة عملية</h4>
     <input type="text" id="productName" placeholder="اسم المنتج">
     <input type="number" id="debtAmount" placeholder="السعر">
     <button onclick="addDebt('${clientId}')">إضافة</button>
-    <h4>الديون</h4>
-    <table>
-      <thead><tr><th>المنتج</th><th>السعر</th><th>التاريخ</th></tr></thead>
-      <tbody id="debtsList"></tbody>
-    </table>
-    <h4>الإجمالي: <span id="totalDebt">0</span> ج</h4>
   `;
 
   db.collection('clients').doc(clientId).collection('debts').orderBy('date', 'desc').get().then(snapshot => {
@@ -139,11 +115,11 @@ function loadDebts(clientId, name) {
 function addDebt(clientId) {
   const product = document.getElementById('productName').value;
   const amount = parseFloat(document.getElementById('debtAmount').value);
-  if (!product || !amount) { alert("أدخل اسم المنتج والسعر"); return; }
+  if (!product || !amount) return alert("أدخل اسم المنتج والسعر");
 
   db.collection('clients').doc(clientId).collection('debts').add({
     product, amount, date: new Date().toLocaleString()
-  }).then(() => loadDebts(clientId));
+  }).then(() => loadDebts(clientId, selectedClientName));
 }
 
-if (document.body.contains(document.getElementById('clientsList'))) loadClients();
+if (document.body.contains(document.getElementById('clientsTable'))) loadClients();
