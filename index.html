@@ -11,7 +11,9 @@
     <h2>تسجيل الدخول</h2>
     <input type="text" id="username" placeholder="اسم المستخدم">
     <input type="password" id="password" placeholder="كلمة المرور">
-    <button onclick="simpleLogin()">دخول</button>
+    <p>اختر نوع الإدارة:</p>
+    <button onclick="simpleLogin('clients')">إدارة العملاء</button>
+    <button onclick="simpleLogin('staff')">إدارة الموظفين</button>
     <p id="error-message"></p>
   </div>
   <script src="app.js"></script>
