@@ -1,7 +1,5 @@
-// تحديد نوع الإدارة
 let mode = localStorage.getItem("mode") || "clients";
 
-// تسجيل الدخول مع تحديد الوضع
 function simpleLogin(selectedMode) {
   const username = document.getElementById('username').value;
   const password = document.getElementById('password').value;
@@ -26,7 +24,6 @@ if (document.body.contains(document.querySelector('.dashboard'))) {
   mode = localStorage.getItem("mode") || "clients";
 }
 
-// Firebase Config
 const firebaseConfig = {
   apiKey: "AIzaSyDZQJZnekkDRf6jGIplVFlx0MckFR-xed8",
   authDomain: "ahmed-77878.firebaseapp.com",
@@ -43,7 +40,6 @@ const db = firebase.database();
 let selectedClientId = null;
 let selectedClientName = null;
 
-// تحميل العملاء أو الموظفين
 function loadClients() {
   const table = document.getElementById('clientsTable');
   db.ref(mode).on('value', snapshot => {
@@ -69,7 +65,6 @@ function highlightRow(selectedRow) {
   selectedRow.classList.add('selected');
 }
 
-// إضافة عميل أو موظف
 function addClient() {
   const name = document.getElementById('clientName').value;
   if (!name) return alert("أدخل الاسم");
@@ -83,7 +78,6 @@ function addClient() {
   });
 }
 
-// حذف عميل أو موظف
 function deleteClient() {
   if (!selectedClientId) return alert("اختر اسم أولاً");
   if (!confirm(`هل أنت متأكد من الحذف ${selectedClientName}؟`)) return;
@@ -93,7 +87,6 @@ function deleteClient() {
   document.getElementById('debtsSection').innerHTML = "<p>اختر اسم من الجدول لعرض التفاصيل</p>";
 }
 
-// تحميل تفاصيل
 function loadDebts(clientId, name) {
   document.getElementById('clientTitle').innerText = `تفاصيل ${name}`;
   const section = document.getElementById('debtsSection');
@@ -129,8 +122,8 @@ function loadDebts(clientId, name) {
           <td>${debt.amount}</td>
           <td>${debt.date}</td>
           <td>
-            <button onclick="editDebt('${clientId}', '${child.key}', '${debt.product}', '${debt.amount}')">تعديل</button>
-            <button onclick="deleteDebt('${clientId}', '${child.key}')">حذف</button>
+            <button style="background:#ffc107;color:black;" onclick="editDebt('${clientId}', '${child.key}', '${debt.product}', '${debt.amount}')">تعديل</button>
+            <button style="background:#dc3545;color:white;" onclick="deleteDebt('${clientId}', '${child.key}')">حذف</button>
           </td>
         </tr>`;
     });
@@ -138,7 +131,6 @@ function loadDebts(clientId, name) {
   });
 }
 
-// إضافة عملية
 function addDebt(clientId) {
   const product = document.getElementById('productName').value;
   const amount = parseFloat(document.getElementById('debtAmount').value);
@@ -149,7 +141,6 @@ function addDebt(clientId) {
   }).then(() => loadDebts(clientId, selectedClientName));
 }
 
-// تعديل عملية
 function editDebt(clientId, debtId, oldProduct, oldAmount) {
   const newProduct = prompt("أدخل الوصف الجديد:", oldProduct);
   const newAmount = parseFloat(prompt("أدخل المبلغ الجديد:", oldAmount));
@@ -160,7 +151,6 @@ function editDebt(clientId, debtId, oldProduct, oldAmount) {
   }).then(() => loadDebts(clientId, selectedClientName));
 }
 
-// حذف عملية محددة مع باسورد
 function deleteDebt(clientId, debtId) {
   const pass = prompt("أدخل كلمة المرور للحذف:");
   if (pass !== "1234") return alert("كلمة مرور غير صحيحة!");
@@ -169,7 +159,6 @@ function deleteDebt(clientId, debtId) {
     .then(() => loadDebts(clientId, selectedClientName));
 }
 
-// حذف كل العمليات مع باسورد
 function deleteAllDebts(clientId) {
   const pass = prompt("أدخل كلمة المرور لحذف كل العمليات:");
   if (pass !== "1234") return alert("كلمة مرور غير صحيحة!");
@@ -178,7 +167,6 @@ function deleteAllDebts(clientId) {
     .then(() => loadDebts(clientId, selectedClientName));
 }
 
-// تسجيل دفع
 function addPayment(clientId) {
   const payment = parseFloat(document.getElementById('paymentAmount').value);
   if (!payment || payment <= 0) return alert("أدخل مبلغ صحيح");
