@@ -58,7 +58,6 @@ function loadClients() {
   });
 }
 
-
 function highlightRow(selectedRow) {
   const rows = document.querySelectorAll('#clientsTable tr');
   rows.forEach(r => r.classList.remove('selected'));
@@ -70,29 +69,23 @@ function addClient() {
   const name = document.getElementById('clientName').value;
   if (!name) return alert("أدخل اسم العميل");
   const newClientRef = db.ref('clients').push();
-  newClientRef.set({ 
-    name: name 
-  }, (error) => {
+  newClientRef.set({ name: name }, (error) => {
     if (error) {
       alert("حصل خطأ أثناء الإضافة!");
     } else {
       document.getElementById('clientName').value = "";
-      loadClients();
     }
   });
 }
-
 
 // حذف عميل
 function deleteClient() {
   if (!selectedClientId) return alert("اختر عميل أولاً");
   if (!confirm(`هل أنت متأكد من حذف العميل ${selectedClientName}؟`)) return;
-  db.ref('clients/' + selectedClientId).remove().then(() => {
-    selectedClientId = null;
-    selectedClientName = null;
-    loadClients();
-    document.getElementById('debtsSection').innerHTML = "<p>اختر عميل من الجدول لعرض التفاصيل</p>";
-  });
+  db.ref('clients/' + selectedClientId).remove();
+  selectedClientId = null;
+  selectedClientName = null;
+  document.getElementById('debtsSection').innerHTML = "<p>اختر عميل من الجدول لعرض التفاصيل</p>";
 }
 
 // تحميل ديون العميل
