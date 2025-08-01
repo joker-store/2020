@@ -13,17 +13,13 @@ function simpleLogin() {
   }
 }
 
-// =======================
 // تسجيل الخروج
-// =======================
 function logout() {
   localStorage.removeItem("loggedIn");
   window.location.href = "index.html";
 }
 
-// =======================
 // منع دخول لوحة التحكم بدون تسجيل
-// =======================
 if (document.body.contains(document.querySelector('.dashboard'))) {
   if (localStorage.getItem("loggedIn") !== "true") {
     window.location.href = "index.html";
@@ -44,9 +40,10 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 
-// =======================
+let selectedClientId = null;
+let selectedClientName = null;
+
 // تحميل العملاء
-// =======================
 function loadClients() {
   const list = document.getElementById('clientsList');
   list.innerHTML = '';
@@ -56,35 +53,59 @@ function loadClients() {
       const div = document.createElement('div');
       div.classList.add('client-item');
       div.innerHTML = `<strong>${client.name}</strong>`;
-      div.onclick = () => loadDebts(doc.id, client.name);
+      div.onclick = () => {
+        selectedClientId = doc.id;
+        selectedClientName = client.name;
+        loadDebts(doc.id, client.name);
+        highlightSelected(div);
+      };
       list.appendChild(div);
     });
   });
 }
 
-// =======================
-// بحث
-// =======================
-function searchClient() {
-  const query = document.getElementById('searchClient').value.toLowerCase();
-  const list = document.querySelectorAll('#clientsList div');
-  list.forEach(div => { div.style.display = div.textContent.toLowerCase().includes(query) ? '' : 'none'; });
+// تمييز العميل المحدد
+function highlightSelected(selectedElement) {
+  const items = document.querySelectorAll('.client-item');
+  items.forEach(item => item.classList.remove('selected'));
+  selectedElement.classList.add('selected');
 }
 
-// =======================
 // إضافة عميل
-// =======================
 function addClient() {
   const name = document.getElementById('clientName').value;
-  const phone = document.getElementById('clientPhone').value;
-  const notes = document.getElementById('clientNotes').value;
-  if (!name) { alert("أدخل اسم العميل"); return; }
-  db.collection('clients').add({ name, phone, notes }).then(() => { alert("تم إضافة العميل"); loadClients(); });
+  if (!name) return alert("أدخل اسم العميل");
+  db.collection('clients').add({ name }).then(() => {
+    alert("تم إضافة العميل");
+    document.getElementById('clientName').value = "";
+    loadClients();
+  });
 }
 
-// =======================
+// حذف العميل المحدد
+function deleteClient() {
+  if (!selectedClientId) return alert("اختر عميل أولاً");
+
+  if (confirm(`هل أنت متأكد من حذف العميل: ${selectedClientName}؟`)) {
+    // احذف كل الديون أولاً
+    const debtsRef = db.collection('clients').doc(selectedClientId).collection('debts');
+    debtsRef.get().then(snapshot => {
+      const batch = db.batch();
+      snapshot.forEach(doc => batch.delete(doc.ref));
+      batch.commit().then(() => {
+        db.collection('clients').doc(selectedClientId).delete().then(() => {
+          alert("تم حذف العميل");
+          selectedClientId = null;
+          selectedClientName = null;
+          loadClients();
+          document.getElementById('debtsSection').innerHTML = "<p>اختر عميل من القائمة لعرض التفاصيل</p>";
+        });
+      });
+    });
+  }
+}
+
 // تحميل ديون العميل
-// =======================
 function loadDebts(clientId, name) {
   document.getElementById('clientTitle').innerText = `ديون ${name}`;
   const section = document.getElementById('debtsSection');
@@ -114,9 +135,7 @@ function loadDebts(clientId, name) {
   });
 }
 
-// =======================
 // إضافة دين
-// =======================
 function addDebt(clientId) {
   const product = document.getElementById('productName').value;
   const amount = parseFloat(document.getElementById('debtAmount').value);
