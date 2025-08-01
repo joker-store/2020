@@ -11,6 +11,13 @@
     <h2>لوحة العملاء</h2>
     <button onclick="logout()">تسجيل الخروج</button>
     <div class="container">
+      <!-- تفاصيل العميل -->
+      <div class="debts-section">
+        <h3 id="clientTitle">تفاصيل العميل</h3>
+        <div id="debtsSection">
+          <p>اختر عميل من الجدول لعرض التفاصيل</p>
+        </div>
+      </div>
       <!-- العملاء -->
       <div class="clients-section">
         <h3>العملاء</h3>
@@ -24,13 +31,6 @@
           <input type="text" id="clientName" placeholder="اسم العميل">
           <button onclick="addClient()">إضافة عميل</button>
           <button onclick="deleteClient()">حذف العميل المحدد</button>
-        </div>
-      </div>
-      <!-- تفاصيل العميل -->
-      <div class="debts-section">
-        <h3 id="clientTitle">تفاصيل العميل</h3>
-        <div id="debtsSection">
-          <p>اختر عميل من الجدول لعرض التفاصيل</p>
         </div>
       </div>
     </div>
