@@ -3,24 +3,17 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>لوحة العملاء</title>
+  <title>لوحة التحكم</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
   <div class="dashboard">
-    <h2>لوحة العملاء</h2>
+    <h2 id="dashboardTitle">لوحة التحكم</h2>
     <button onclick="logout()">تسجيل الخروج</button>
     <div class="container">
-      <!-- تفاصيل العميل -->
-      <div class="debts-section">
-        <h3 id="clientTitle">تفاصيل العميل</h3>
-        <div id="debtsSection">
-          <p>اختر عميل من الجدول لعرض التفاصيل</p>
-        </div>
-      </div>
-      <!-- العملاء -->
+      <!-- العملاء أو الموظفين -->
       <div class="clients-section">
-        <h3>العملاء</h3>
+        <h3 id="clientsTitle">العملاء</h3>
         <table>
           <thead>
             <tr><th>الاسم</th></tr>
@@ -28,11 +21,26 @@
           <tbody id="clientsTable"></tbody>
         </table>
         <div class="client-actions">
-          <input type="text" id="clientName" placeholder="اسم العميل">
-          <button onclick="addClient()">إضافة عميل</button>
-          <button onclick="deleteClient()">حذف العميل المحدد</button>
+          <input type="text" id="clientName" placeholder="الاسم">
+          <button onclick="addClient()">إضافة</button>
+          <button onclick="deleteClient()">حذف المحدد</button>
         </div>
       </div>
+      <!-- تفاصيل العميل -->
+      <div class="debts-section">
+        <h3 id="clientTitle">التفاصيل</h3>
+        <div id="debtsSection">
+          <p>اختر اسم من الجدول لعرض التفاصيل</p>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div id="passwordModal" class="modal">
+    <div class="modal-content">
+      <h3>أدخل كلمة المرور</h3>
+      <input type="password" id="confirmPassword" placeholder="كلمة المرور">
+      <button onclick="confirmPassword()">تأكيد</button>
+      <button onclick="closeModal()">إلغاء</button>
     </div>
   </div>
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
