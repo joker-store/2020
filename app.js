@@ -1,4 +1,38 @@
-// Firebase Config (حط بياناتك هنا)
+// =======================
+// تسجيل دخول بسيط
+// =======================
+function simpleLogin() {
+  const username = document.getElementById('username').value;
+  const password = document.getElementById('password').value;
+
+  if (username === "admin" && password === "1234") { // غيرهم زي ما تحب
+    localStorage.setItem("loggedIn", "true");
+    window.location.href = "dashboard.html";
+  } else {
+    document.getElementById('error-message').innerText = "بيانات الدخول غير صحيحة!";
+  }
+}
+
+// =======================
+// تسجيل الخروج
+// =======================
+function logout() {
+  localStorage.removeItem("loggedIn");
+  window.location.href = "index.html";
+}
+
+// =======================
+// منع دخول لوحة التحكم بدون تسجيل
+// =======================
+if (document.body.contains(document.querySelector('.dashboard'))) {
+  if (localStorage.getItem("loggedIn") !== "true") {
+    window.location.href = "index.html";
+  }
+}
+
+// =======================
+// Firebase (للعملاء والديون)
+// =======================
 const firebaseConfig = {
   apiKey: "xxxx",
   authDomain: "xxxx.firebaseapp.com",
@@ -7,18 +41,12 @@ const firebaseConfig = {
   messagingSenderId: "xxxx",
   appId: "xxxx"
 };
-
 firebase.initializeApp(firebaseConfig);
-const auth = firebase.auth();
 const db = firebase.firestore();
 
-// تسجيل الدخول والخروج
-function login() { ... }  // نفس الكود السابق
-function register() { ... }
-function logout() { auth.signOut().then(() => window.location.href = "index.html"); }
-auth.onAuthStateChanged(user => { if (document.body.contains(document.querySelector('.dashboard')) && !user) window.location.href = "index.html"; });
-
+// =======================
 // تحميل العملاء
+// =======================
 function loadClients() {
   const list = document.getElementById('clientsList');
   list.innerHTML = '';
@@ -34,14 +62,18 @@ function loadClients() {
   });
 }
 
-// البحث
+// =======================
+// بحث
+// =======================
 function searchClient() {
   const query = document.getElementById('searchClient').value.toLowerCase();
   const list = document.querySelectorAll('#clientsList div');
   list.forEach(div => { div.style.display = div.textContent.toLowerCase().includes(query) ? '' : 'none'; });
 }
 
+// =======================
 // إضافة عميل
+// =======================
 function addClient() {
   const name = document.getElementById('clientName').value;
   const phone = document.getElementById('clientPhone').value;
@@ -50,7 +82,9 @@ function addClient() {
   db.collection('clients').add({ name, phone, notes }).then(() => { alert("تم إضافة العميل"); loadClients(); });
 }
 
+// =======================
 // تحميل ديون العميل
+// =======================
 function loadDebts(clientId, name) {
   document.getElementById('clientTitle').innerText = `ديون ${name}`;
   const section = document.getElementById('debtsSection');
@@ -80,7 +114,9 @@ function loadDebts(clientId, name) {
   });
 }
 
+// =======================
 // إضافة دين
+// =======================
 function addDebt(clientId) {
   const product = document.getElementById('productName').value;
   const amount = parseFloat(document.getElementById('debtAmount').value);
