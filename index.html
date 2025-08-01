@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>تسجيل الدخول - كافيه الأجل</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="login-container">
+    <h2>كافيه الأجل</h2>
+    <input type="email" id="email" placeholder="البريد الإلكتروني">
+    <input type="password" id="password" placeholder="كلمة المرور">
+    <button onclick="login()">تسجيل الدخول</button>
+    <button onclick="register()">تسجيل حساب جديد</button>
+    <p id="error-message"></p>
+  </div>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
