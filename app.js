@@ -69,11 +69,18 @@ function addClient() {
   const name = document.getElementById('clientName').value;
   if (!name) return alert("أدخل اسم العميل");
   const newClientRef = db.ref('clients').push();
-  newClientRef.set({ name }).then(() => {
-    document.getElementById('clientName').value = "";
-    loadClients();
+  newClientRef.set({ 
+    name: name 
+  }, (error) => {
+    if (error) {
+      alert("حصل خطأ أثناء الإضافة!");
+    } else {
+      document.getElementById('clientName').value = "";
+      loadClients();
+    }
   });
 }
+
 
 // حذف عميل
 function deleteClient() {
