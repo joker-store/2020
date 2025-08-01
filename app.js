@@ -112,6 +112,8 @@ function loadDebts(clientId, name) {
     <h4>تسجيل دفع</h4>
     <input type="number" id="paymentAmount" placeholder="المبلغ المدفوع">
     <button onclick="addPayment('${clientId}')">تسجيل دفع</button>
+    <br><br>
+    <button onclick="deleteAllDebts('${clientId}')">حذف كل العمليات</button>
   `;
 
   db.ref(mode + '/' + clientId + '/debts').once('value', snapshot => {
@@ -126,7 +128,10 @@ function loadDebts(clientId, name) {
           <td>${debt.product}</td>
           <td>${debt.amount}</td>
           <td>${debt.date}</td>
-          <td><button onclick="editDebt('${clientId}', '${child.key}', '${debt.product}', '${debt.amount}')">تعديل</button></td>
+          <td>
+            <button onclick="editDebt('${clientId}', '${child.key}', '${debt.product}', '${debt.amount}')">تعديل</button>
+            <button onclick="deleteDebt('${clientId}', '${child.key}')">حذف</button>
+          </td>
         </tr>`;
     });
     document.getElementById('totalDebt').innerText = total;
@@ -153,6 +158,24 @@ function editDebt(clientId, debtId, oldProduct, oldAmount) {
     product: newProduct,
     amount: newAmount
   }).then(() => loadDebts(clientId, selectedClientName));
+}
+
+// حذف عملية محددة مع باسورد
+function deleteDebt(clientId, debtId) {
+  const pass = prompt("أدخل كلمة المرور للحذف:");
+  if (pass !== "1234") return alert("كلمة مرور غير صحيحة!");
+  if (!confirm("هل أنت متأكد من حذف هذه العملية؟")) return;
+  db.ref(`${mode}/${clientId}/debts/${debtId}`).remove()
+    .then(() => loadDebts(clientId, selectedClientName));
+}
+
+// حذف كل العمليات مع باسورد
+function deleteAllDebts(clientId) {
+  const pass = prompt("أدخل كلمة المرور لحذف كل العمليات:");
+  if (pass !== "1234") return alert("كلمة مرور غير صحيحة!");
+  if (!confirm("هل أنت متأكد من حذف كل العمليات لهذا العميل؟")) return;
+  db.ref(`${mode}/${clientId}/debts`).remove()
+    .then(() => loadDebts(clientId, selectedClientName));
 }
 
 // تسجيل دفع
