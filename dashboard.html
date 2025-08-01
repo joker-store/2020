@@ -15,21 +15,21 @@
       <!-- قائمة العملاء -->
       <div class="clients-section">
         <h3>العملاء</h3>
-        <input type="text" id="searchClient" placeholder="ابحث عن عميل" onkeyup="searchClient()">
         <div id="clientsList"></div>
 
         <h4>إضافة عميل</h4>
         <input type="text" id="clientName" placeholder="اسم العميل">
-        <input type="text" id="clientPhone" placeholder="رقم الهاتف">
-        <textarea id="clientNotes" placeholder="ملاحظات"></textarea>
         <button onclick="addClient()">إضافة</button>
+
+        <h4>حذف العميل المحدد</h4>
+        <button onclick="deleteClient()">حذف العميل</button>
       </div>
 
       <!-- تفاصيل العميل -->
       <div class="debts-section">
         <h3 id="clientTitle">تفاصيل العميل</h3>
         <div id="debtsSection">
-          <p>اختر عميل من القائمة لعرض الديون</p>
+          <p>اختر عميل من القائمة لعرض التفاصيل</p>
         </div>
       </div>
     </div>
