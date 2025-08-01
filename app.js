@@ -1,4 +1,6 @@
 let mode = localStorage.getItem("mode") || "clients";
+let actionToConfirm = null; // لتخزين الإجراء المراد تنفيذه بعد إدخال الباسورد
+let actionParams = null;
 
 function simpleLogin(selectedMode) {
   const username = document.getElementById('username').value;
@@ -6,7 +8,7 @@ function simpleLogin(selectedMode) {
   if (username === "admin" && password === "1234") {
     localStorage.setItem("loggedIn", "true");
     localStorage.setItem("mode", selectedMode);
-    window.location.href = selectedMode === "clients" ? "dashboard.html" : "staff.html";
+    window.location.href = "dashboard.html";
   } else {
     document.getElementById('error-message').innerText = "بيانات الدخول غير صحيحة!";
   }
@@ -22,6 +24,8 @@ if (document.body.contains(document.querySelector('.dashboard'))) {
     window.location.href = "index.html";
   }
   mode = localStorage.getItem("mode") || "clients";
+  document.getElementById('dashboardTitle').innerText = mode === "clients" ? "لوحة العملاء" : "لوحة الموظفين";
+  document.getElementById('clientsTitle').innerText = mode === "clients" ? "العملاء" : "الموظفين";
 }
 
 const firebaseConfig = {
@@ -70,21 +74,19 @@ function addClient() {
   if (!name) return alert("أدخل الاسم");
   const newClientRef = db.ref(mode).push();
   newClientRef.set({ name: name }, (error) => {
-    if (error) {
-      alert("حصل خطأ أثناء الإضافة!");
-    } else {
-      document.getElementById('clientName').value = "";
-    }
+    if (error) alert("خطأ أثناء الإضافة!");
+    else document.getElementById('clientName').value = "";
   });
 }
 
 function deleteClient() {
   if (!selectedClientId) return alert("اختر اسم أولاً");
-  if (!confirm(`هل أنت متأكد من الحذف ${selectedClientName}؟`)) return;
-  db.ref(mode + '/' + selectedClientId).remove();
-  selectedClientId = null;
-  selectedClientName = null;
-  document.getElementById('debtsSection').innerHTML = "<p>اختر اسم من الجدول لعرض التفاصيل</p>";
+  openPasswordModal(() => {
+    db.ref(mode + '/' + selectedClientId).remove();
+    selectedClientId = null;
+    selectedClientName = null;
+    document.getElementById('debtsSection').innerHTML = "<p>اختر اسم من الجدول لعرض التفاصيل</p>";
+  });
 }
 
 function loadDebts(clientId, name) {
@@ -109,7 +111,7 @@ function loadDebts(clientId, name) {
     <button onclick="deleteAllDebts('${clientId}')">حذف كل العمليات</button>
   `;
 
-  db.ref(mode + '/' + clientId + '/debts').once('value', snapshot => {
+  db.ref(mode + '/' + clientId + '/debts').on('value', snapshot => {
     const debtsList = document.getElementById('debtsList');
     debtsList.innerHTML = '';
     let total = 0;
@@ -122,8 +124,8 @@ function loadDebts(clientId, name) {
           <td>${debt.amount}</td>
           <td>${debt.date}</td>
           <td>
-            <button style="background:#ffc107;color:black;" onclick="editDebt('${clientId}', '${child.key}', '${debt.product}', '${debt.amount}')">تعديل</button>
-            <button style="background:#dc3545;color:white;" onclick="deleteDebt('${clientId}', '${child.key}')">حذف</button>
+            <button class="edit-btn" onclick="editDebt('${clientId}', '${child.key}', '${debt.product}', '${debt.amount}')">تعديل</button>
+            <button class="delete-btn" onclick="deleteDebt('${clientId}', '${child.key}')">حذف</button>
           </td>
         </tr>`;
     });
@@ -152,19 +154,17 @@ function editDebt(clientId, debtId, oldProduct, oldAmount) {
 }
 
 function deleteDebt(clientId, debtId) {
-  const pass = prompt("أدخل كلمة المرور للحذف:");
-  if (pass !== "1234") return alert("كلمة مرور غير صحيحة!");
-  if (!confirm("هل أنت متأكد من حذف هذه العملية؟")) return;
-  db.ref(`${mode}/${clientId}/debts/${debtId}`).remove()
-    .then(() => loadDebts(clientId, selectedClientName));
+  openPasswordModal(() => {
+    db.ref(`${mode}/${clientId}/debts/${debtId}`).remove()
+      .then(() => loadDebts(clientId, selectedClientName));
+  });
 }
 
 function deleteAllDebts(clientId) {
-  const pass = prompt("أدخل كلمة المرور لحذف كل العمليات:");
-  if (pass !== "1234") return alert("كلمة مرور غير صحيحة!");
-  if (!confirm("هل أنت متأكد من حذف كل العمليات لهذا العميل؟")) return;
-  db.ref(`${mode}/${clientId}/debts`).remove()
-    .then(() => loadDebts(clientId, selectedClientName));
+  openPasswordModal(() => {
+    db.ref(`${mode}/${clientId}/debts`).remove()
+      .then(() => loadDebts(clientId, selectedClientName));
+  });
 }
 
 function addPayment(clientId) {
@@ -176,6 +176,23 @@ function addPayment(clientId) {
     amount: -payment,
     date: new Date().toLocaleString()
   }).then(() => loadDebts(clientId, selectedClientName));
+}
+
+/* ---- نافذة إدخال كلمة المرور ---- */
+function openPasswordModal(action, params = null) {
+  actionToConfirm = action;
+  actionParams = params;
+  document.getElementById('passwordModal').style.display = "block";
+}
+function closeModal() {
+  document.getElementById('passwordModal').style.display = "none";
+  document.getElementById('confirmPassword').value = "";
+}
+function confirmPassword() {
+  const pass = document.getElementById('confirmPassword').value;
+  if (pass !== "1234") return alert("كلمة مرور غير صحيحة!");
+  closeModal();
+  if (actionToConfirm) actionToConfirm(actionParams);
 }
 
 if (document.body.contains(document.getElementById('clientsTable'))) loadClients();
