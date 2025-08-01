@@ -38,11 +38,11 @@ const db = firebase.database();
 let selectedClientId = null;
 let selectedClientName = null;
 
-// تحميل العملاء
+// تحميل العملاء مع تحديث لحظي
 function loadClients() {
   const table = document.getElementById('clientsTable');
-  table.innerHTML = '';
-  db.ref('clients').once('value', snapshot => {
+  db.ref('clients').on('value', snapshot => {
+    table.innerHTML = '';
     snapshot.forEach(child => {
       const client = child.val();
       const row = document.createElement('tr');
@@ -57,6 +57,7 @@ function loadClients() {
     });
   });
 }
+
 
 function highlightRow(selectedRow) {
   const rows = document.querySelectorAll('#clientsTable tr');
