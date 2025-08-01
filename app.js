@@ -23,17 +23,17 @@ if (document.body.contains(document.querySelector('.dashboard'))) {
 
 // Firebase Config
 const firebaseConfig = {
-  apiKey: "AIzaSyC7V0kGz3p11sjF-FMSLW4kJ5WuZzNtLX0",
-  authDomain: "cafe-pc-8a386.firebaseapp.com",
-  databaseURL: "https://cafe-pc-8a386-default-rtdb.firebaseio.com",
-  projectId: "cafe-pc-8a386",
-  storageBucket: "cafe-pc-8a386.firebasestorage.app",
-  messagingSenderId: "150129569328",
-  appId: "1:150129569328:web:793a4eb7a1c9dd091947f5",
-  measurementId: "G-35NEY890C3"
+  apiKey: "AIzaSyDZQJZnekkDRf6jGIplVFlx0MckFR-xed8",
+  authDomain: "ahmed-77878.firebaseapp.com",
+  databaseURL: "https://ahmed-77878-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "ahmed-77878",
+  storageBucket: "ahmed-77878.firebasestorage.app",
+  messagingSenderId: "566732207368",
+  appId: "1:566732207368:web:d88477f62ecf475e2628bd",
+  measurementId: "G-NTBFNP3PLF"
 };
 firebase.initializeApp(firebaseConfig);
-const db = firebase.firestore();
+const db = firebase.database();
 
 let selectedClientId = null;
 let selectedClientName = null;
@@ -42,15 +42,15 @@ let selectedClientName = null;
 function loadClients() {
   const table = document.getElementById('clientsTable');
   table.innerHTML = '';
-  db.collection('clients').orderBy('name').get().then(snapshot => {
-    snapshot.forEach(doc => {
-      const client = doc.data();
+  db.ref('clients').once('value', snapshot => {
+    snapshot.forEach(child => {
+      const client = child.val();
       const row = document.createElement('tr');
       row.innerHTML = `<td>${client.name}</td>`;
       row.onclick = () => {
-        selectedClientId = doc.id;
+        selectedClientId = child.key;
         selectedClientName = client.name;
-        loadDebts(doc.id, client.name);
+        loadDebts(child.key, client.name);
         highlightRow(row);
       };
       table.appendChild(row);
@@ -68,29 +68,22 @@ function highlightRow(selectedRow) {
 function addClient() {
   const name = document.getElementById('clientName').value;
   if (!name) return alert("أدخل اسم العميل");
-  db.collection('clients').add({ name }).then(() => {
+  const newClientRef = db.ref('clients').push();
+  newClientRef.set({ name }).then(() => {
     document.getElementById('clientName').value = "";
     loadClients();
-  }).catch(err => alert("خطأ في الإضافة: " + err));
+  });
 }
 
 // حذف عميل
 function deleteClient() {
   if (!selectedClientId) return alert("اختر عميل أولاً");
   if (!confirm(`هل أنت متأكد من حذف العميل ${selectedClientName}؟`)) return;
-
-  const debtsRef = db.collection('clients').doc(selectedClientId).collection('debts');
-  debtsRef.get().then(snapshot => {
-    const batch = db.batch();
-    snapshot.forEach(doc => batch.delete(doc.ref));
-    batch.commit().then(() => {
-      db.collection('clients').doc(selectedClientId).delete().then(() => {
-        selectedClientId = null;
-        selectedClientName = null;
-        loadClients();
-        document.getElementById('debtsSection').innerHTML = "<p>اختر عميل من الجدول لعرض التفاصيل</p>";
-      });
-    });
+  db.ref('clients/' + selectedClientId).remove().then(() => {
+    selectedClientId = null;
+    selectedClientName = null;
+    loadClients();
+    document.getElementById('debtsSection').innerHTML = "<p>اختر عميل من الجدول لعرض التفاصيل</p>";
   });
 }
 
@@ -112,12 +105,12 @@ function loadDebts(clientId, name) {
     <button onclick="addDebt('${clientId}')">إضافة</button>
   `;
 
-  db.collection('clients').doc(clientId).collection('debts').orderBy('date', 'desc').get().then(snapshot => {
+  db.ref('clients/' + clientId + '/debts').once('value', snapshot => {
     const debtsList = document.getElementById('debtsList');
     debtsList.innerHTML = '';
     let total = 0;
-    snapshot.forEach(doc => {
-      const debt = doc.data();
+    snapshot.forEach(child => {
+      const debt = child.val();
       total += parseFloat(debt.amount);
       debtsList.innerHTML += `<tr><td>${debt.product}</td><td>${debt.amount}</td><td>${debt.date}</td></tr>`;
     });
@@ -130,7 +123,8 @@ function addDebt(clientId) {
   const product = document.getElementById('productName').value;
   const amount = parseFloat(document.getElementById('debtAmount').value);
   if (!product || !amount) return alert("أدخل اسم المنتج والسعر");
-  db.collection('clients').doc(clientId).collection('debts').add({
+  const newDebtRef = db.ref('clients/' + clientId + '/debts').push();
+  newDebtRef.set({
     product, amount, date: new Date().toLocaleString()
   }).then(() => loadDebts(clientId, selectedClientName));
 }
