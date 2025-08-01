@@ -8,16 +8,12 @@
 </head>
 <body>
   <div class="login-container">
-    <h2>كافيه الأجل</h2>
-    <input type="email" id="email" placeholder="البريد الإلكتروني">
+    <h2>تسجيل الدخول</h2>
+    <input type="text" id="username" placeholder="اسم المستخدم">
     <input type="password" id="password" placeholder="كلمة المرور">
-    <button onclick="login()">تسجيل الدخول</button>
-    <button onclick="register()">تسجيل حساب جديد</button>
+    <button onclick="simpleLogin()">دخول</button>
     <p id="error-message"></p>
   </div>
-  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js"></script>
   <script src="app.js"></script>
 </body>
 </html>
