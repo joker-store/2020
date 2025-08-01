@@ -88,7 +88,7 @@ function deleteClient() {
   document.getElementById('debtsSection').innerHTML = "<p>اختر عميل من الجدول لعرض التفاصيل</p>";
 }
 
-// تحميل ديون العميل
+// تحميل ديون العميل + الدفع
 function loadDebts(clientId, name) {
   document.getElementById('clientTitle').innerText = `ديون ${name}`;
   const section = document.getElementById('debtsSection');
@@ -104,6 +104,9 @@ function loadDebts(clientId, name) {
     <input type="text" id="productName" placeholder="اسم المنتج">
     <input type="number" id="debtAmount" placeholder="السعر">
     <button onclick="addDebt('${clientId}')">إضافة</button>
+    <h4>تسجيل دفع</h4>
+    <input type="number" id="paymentAmount" placeholder="المبلغ المدفوع">
+    <button onclick="addPayment('${clientId}')">تسجيل دفع</button>
   `;
 
   db.ref('clients/' + clientId + '/debts').once('value', snapshot => {
@@ -127,6 +130,18 @@ function addDebt(clientId) {
   const newDebtRef = db.ref('clients/' + clientId + '/debts').push();
   newDebtRef.set({
     product, amount, date: new Date().toLocaleString()
+  }).then(() => loadDebts(clientId, selectedClientName));
+}
+
+// تسجيل دفع
+function addPayment(clientId) {
+  const payment = parseFloat(document.getElementById('paymentAmount').value);
+  if (!payment || payment <= 0) return alert("أدخل مبلغ صحيح");
+  const newDebtRef = db.ref('clients/' + clientId + '/debts').push();
+  newDebtRef.set({
+    product: "دفع",
+    amount: -payment,
+    date: new Date().toLocaleString()
   }).then(() => loadDebts(clientId, selectedClientName));
 }
 
