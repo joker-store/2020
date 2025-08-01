@@ -29,16 +29,7 @@ body {
 .container {
   display: flex;
   gap: 20px;
-  flex-direction: row-reverse; /* عكس الاتجاه */
-}
-
-.clients-section { 
-  width: 30%; 
-  order: 2; /* يخلي العملاء شمال */
-}
-.debts-section { 
-  width: 70%; 
-  order: 1; /* يخلي التفاصيل يمين */
+  flex-direction: row; /* هنا الاتجاه الطبيعي */
 }
 
 .clients-section, .debts-section {
@@ -49,8 +40,14 @@ body {
   color: #000;
 }
 
-.clients-section { width: 30%; }
-.debts-section { width: 70%; }
+.clients-section { 
+  width: 30%; 
+  order: 1; /* العملاء يمين */
+}
+.debts-section { 
+  width: 70%; 
+  order: 2; /* التفاصيل شمال */
+}
 
 table {
   width: 100%;
