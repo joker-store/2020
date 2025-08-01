@@ -5,7 +5,7 @@ let actionParams = null;
 function simpleLogin(selectedMode) {
   const username = document.getElementById('username').value;
   const password = document.getElementById('password').value;
-  if (username === "admin" && password === "1234") {
+  if (username === "admin" && password === "joker") {
     localStorage.setItem("loggedIn", "true");
     localStorage.setItem("mode", selectedMode);
     window.location.href = "dashboard.html";
