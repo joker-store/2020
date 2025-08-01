@@ -29,7 +29,7 @@ body {
 .container {
   display: flex;
   gap: 20px;
-  flex-direction: row-reverse; /* عكس القوائم */
+  flex-direction: row; /* بدل row-reverse */
 }
 
 .clients-section, .debts-section {
