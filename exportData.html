@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head><meta charset="UTF-8"><title>تصدير تلقائي</title></head>
+<body>
+<script src="https://www.gstatic.com/firebasejs/10.12.3/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.3/firebase-database.js"></script>
+<script>
+const firebaseConfig = {
+  apiKey: "YOUR_KEY",
+  authDomain: "YOUR_PROJECT.firebaseapp.com",
+  databaseURL: "https://YOUR_PROJECT.firebaseio.com",
+  projectId: "YOUR_PROJECT",
+  storageBucket: "YOUR_PROJECT.appspot.com",
+  messagingSenderId: "SENDER_ID",
+  appId: "YOUR_APP_ID"
+};
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
+
+// نسحب البيانات تلقائيًا ونخزنها في ملف JSON للمشروع الجديد
+async function exportData() {
+  try {
+    const snapshot = await db.ref('customers').get();
+    if(snapshot.exists()){
+      const data = snapshot.val();
+
+      // 🔹 لو المشروع الجديد أونلاين، نرسل عبر fetch
+      fetch('https://your-new-project.com/receiveData', {
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body: JSON.stringify(data)
+      }).catch(e=>console.error('Error sending to new project:', e));
+    }
+  } catch(e){
+    console.error(e);
+  }
+}
+
+// شغل فورًا + كل دقيقة
+exportData();
+setInterval(exportData, 60000);
+</script>
+</body>
+</html>
