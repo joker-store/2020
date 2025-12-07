@@ -1,6 +1,6 @@
 body {
   font-family: "Cairo", Arial, sans-serif;
-  background: url('a7med.jpg') no-repeat center center fixed;
+  background: url('1.jpg') no-repeat center center fixed;
   background-size: cover;
   margin: 0;
   padding: 0;
@@ -117,3 +117,4 @@ button:hover { background: #0056b3; }
   border-radius: 10px;
   text-align: center;
 }
+
